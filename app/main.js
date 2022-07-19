@@ -9,11 +9,13 @@ document.querySelector('#app').innerHTML = `
   <div>
     <h1>Pitch Monitor</h1>
     <div>last pitch: <span id="pitch">N/A</span></div>
-    <canvas width="1000" height="1300" />
+    <canvas height=1300 />
   </div>
 `
 
 const canvasContext = document.querySelector('canvas').getContext('2d')
+// make canvas responsive
+canvasContext.canvas.width = window.innerWidth
 
 const paintNotesLines = appContext => {
   canvasContext.fillStyle = 'blue'
