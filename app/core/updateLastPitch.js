@@ -5,7 +5,15 @@ const isNearNote = frequency =>
   noteFrequencyTuples.some(noteFrequencyTuple => {
     const [_, expectedFrequency] = noteFrequencyTuple
     const frequencyDiff = Math.abs(expectedFrequency - frequency)
-    return frequencyDiff <= 0.01 * expectedFrequency
+
+    /**
+     * around 10% of the ratio between
+     * the difference between the frequencies
+     * of two adjacent notes and one of those frequencies
+     */
+    const threshold = 0.017
+
+    return frequencyDiff <= threshold * expectedFrequency
   })
 
 const updateLastPitch = (frequency, canvasWidth) => appContext => {
