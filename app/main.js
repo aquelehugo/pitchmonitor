@@ -45,10 +45,10 @@ const paintMonitorBoard = appContext => {
 }
 
 const paintLastPitch = appContext => {
-  const { lastPitch, pitchSize } = appContext
+  const { lastPitch, pitchSize, pitchLines } = appContext
 
-  if (lastPitch.position.x === 0) {
-    paintMonitorBoard()
+  if (lastPitch.position.x === pitchLines.offset.x) {
+    paintMonitorBoard(appContext)
   }
 
   canvasContext.fillStyle = lastPitch.color
@@ -66,7 +66,7 @@ setupPitchDetector().then(pitchDetector => {
   pitchDetector.addPitchListener(frequency => {
     document.getElementById('pitch').innerHTML = frequency
 
-    setContext(updateLastPitch(frequency)(getContext()))
+    setContext(updateLastPitch(frequency, canvasContext.canvas.width)(getContext()))
 
     paintLastPitch(getContext())
   })
