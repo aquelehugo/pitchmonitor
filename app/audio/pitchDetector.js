@@ -1,4 +1,5 @@
 import * as pitchfinder from 'pitchfinder'
+import noteFrequencyTuples from '../constants/noteFrequencyTuples'
 
 export const setupPitchDetector = async () => {
   const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -13,9 +14,9 @@ export const setupPitchDetector = async () => {
     const channelData = data.inputBuffer.getChannelData(0)
 
     const frequency = pitchfinder.AMDF({
-      minFrequency: 60,
+      minFrequency: noteFrequencyTuples[0][1],
       sampleRate: audioContext.sampleRate,
-      maxFrequency: 1000,
+      maxFrequency: noteFrequencyTuples.at(-1)[1],
     })(channelData)
 
     if (frequency) {
