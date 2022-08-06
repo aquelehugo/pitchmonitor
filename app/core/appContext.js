@@ -16,6 +16,7 @@ const DEFAULT_CONTEXT = {
       y: 50,
     },
     baseDistance: 300,
+    highestOnTop: true,
   },
 }
 
