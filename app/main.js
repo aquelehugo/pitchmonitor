@@ -4,10 +4,11 @@ import { setupPitchDetector } from './audio/pitchDetector'
 import getLogPitchY from './core/getLogPitchY'
 import { getContext, setContext } from './core/appContext'
 import updateLastPitch from './core/updateLastPitch'
+import logoUrl from '../public/pitchmonitor.svg'
 
 document.querySelector('#app').innerHTML = `
   <div>
-    <h1>Pitch Monitor</h1>
+    <h1>Pitch Monitor <img src="${logoUrl}" height="48" width="48"></h1>
     <div>last pitch: <span id="pitch">N/A</span></div>
     <canvas height=1300 />
   </div>
