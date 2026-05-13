@@ -4,16 +4,12 @@ import getLogPitchY from './getLogPitchY'
 const isNearNote = frequency =>
   noteFrequencyTuples.some(noteFrequencyTuple => {
     const [_, expectedFrequency] = noteFrequencyTuple
-    const frequencyDiff = Math.abs(expectedFrequency - frequency)
+    // Calculate deviation in cents: C = 1200 * log2(f / f_0)
+    const ratio = frequency / expectedFrequency;
+    const deviationCents = 1200 * Math.log2(ratio);
 
-    /**
-     * around 10% of the ratio between
-     * the difference between the frequencies
-     * of two adjacent notes and one of those frequencies
-     */
-    const threshold = 0.017
-
-    return frequencyDiff <= threshold * expectedFrequency
+    // Check if absolute deviation is within 10 cents
+    return Math.abs(deviationCents) <= 10
   })
 
 const updateLastPitch = (frequency, canvasWidth) => appContext => {
