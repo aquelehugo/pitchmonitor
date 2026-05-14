@@ -5,21 +5,26 @@ export const setupPitchDetector = async () => {
   const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
   const audioContext = new window.AudioContext()
   const source = audioContext.createMediaStreamSource(mediaStream)
-  const node = audioContext.createScriptProcessor(0, 1, 1)
+
+  await audioContext.audioWorklet.addModule(
+    new URL('./pitchDetector.worklet.js', import.meta.url),
+  )
+
+  const node = new AudioWorkletNode(audioContext, 'pitch-detector-processor', {
+    processorOptions: {
+      sampleRate: audioContext.sampleRate,
+      minFrequency: noteFrequencyTuples[0][1],
+      maxFrequency: noteFrequencyTuples.at(-1)[1],
+    },
+  })
+
   source.connect(node)
   node.connect(audioContext.destination)
 
   const pitchListeners = []
-  node.onaudioprocess = data => {
-    const channelData = data.inputBuffer.getChannelData(0)
-
-    const frequency = pitchfinder.AMDF({
-      minFrequency: noteFrequencyTuples[0][1],
-      sampleRate: audioContext.sampleRate,
-      maxFrequency: noteFrequencyTuples.at(-1)[1],
-    })(channelData)
-
-    if (frequency) {
+  node.port.onmessage = data => {
+    if (data.data.type === 'pitch') {
+      const frequency = data.data.frequency
       pitchListeners.forEach(pitchListener => pitchListener(frequency))
     }
   }
