@@ -1,14 +1,12 @@
-import * as pitchfinder from 'pitchfinder'
 import noteFrequencyTuples from '../constants/noteFrequencyTuples'
+import workletUrl from './pitchDetector.worklet?worker&url'
 
 export const setupPitchDetector = async () => {
   const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
   const audioContext = new window.AudioContext()
   const source = audioContext.createMediaStreamSource(mediaStream)
 
-  await audioContext.audioWorklet.addModule(
-    new URL('./pitchDetector.worklet.js', import.meta.url),
-  )
+  await audioContext.audioWorklet.addModule(workletUrl)
 
   const node = new AudioWorkletNode(audioContext, 'pitch-detector-processor', {
     processorOptions: {

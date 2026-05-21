@@ -1,4 +1,4 @@
-import * as pitchfinder from 'pitchfinder'
+import { AMDF } from 'pitchfinder'
 import noteFrequencyTuples from '../constants/noteFrequencyTuples.js'
 
 const BUFFER_SIZE = 2048
@@ -15,7 +15,7 @@ class PitchDetectorProcessor extends AudioWorkletProcessor {
     const maxFreq =
       options?.processorOptions?.maxFrequency || noteFrequencyTuples.at(-1)[1]
 
-    this.amdf = pitchfinder.AMDF({
+    this.amdf = AMDF({
       minFrequency: minFreq,
       sampleRate: sampleRate,
       maxFrequency: maxFreq,
