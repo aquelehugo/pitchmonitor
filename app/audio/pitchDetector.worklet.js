@@ -1,4 +1,4 @@
-import { AMDF } from 'pitchfinder'
+import { Macleod } from 'pitchfinder'
 import noteFrequencyTuples from '../constants/noteFrequencyTuples.js'
 
 const BUFFER_SIZE = 2048
@@ -10,15 +10,14 @@ class PitchDetectorProcessor extends AudioWorkletProcessor {
     this.bufferIndex = 0
 
     const sampleRate = options?.processorOptions?.sampleRate || 44100
-    const minFreq =
+    this.minFreq =
       options?.processorOptions?.minFrequency || noteFrequencyTuples[0][1]
-    const maxFreq =
+    this.maxFreq =
       options?.processorOptions?.maxFrequency || noteFrequencyTuples.at(-1)[1]
 
-    this.amdf = AMDF({
-      minFrequency: minFreq,
-      sampleRate: sampleRate,
-      maxFrequency: maxFreq,
+    this.detectPitch = Macleod({
+      sampleRate,
+      bufferSize: BUFFER_SIZE,
     })
   }
 
@@ -38,8 +37,13 @@ class PitchDetectorProcessor extends AudioWorkletProcessor {
 
         // Process when full
         if (this.bufferIndex >= BUFFER_SIZE) {
-          const frequency = this.amdf(this.buffer)
-          if (frequency) {
+          const { freq: frequency, probability } = this.detectPitch(this.buffer)
+
+          if (
+            frequency <= this.maxFreq &&
+            frequency >= this.minFreq &&
+            probability >= 0.9
+          ) {
             this.port.postMessage({ type: 'pitch', frequency })
           }
           this.bufferIndex = 0
