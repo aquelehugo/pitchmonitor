@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "eslint": "^8.20.0",
-    "gh-pages": "^4.0.0",
+    "gh-pages": "^6.3.0",
     "prettier": "^2.7.1",
     "vite": "^3.0.0"
   },
