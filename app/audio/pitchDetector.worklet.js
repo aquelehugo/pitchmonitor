@@ -1,7 +1,7 @@
 import { Macleod } from 'pitchfinder'
 import noteFrequencyTuples from '../constants/noteFrequencyTuples.js'
 
-const BUFFER_SIZE = 2048
+const BUFFER_SIZE = 1024
 
 class PitchDetectorProcessor extends AudioWorkletProcessor {
   constructor(options) {
