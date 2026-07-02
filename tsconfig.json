@@ -15,6 +15,6 @@
     "noEmit": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include": ["app/**/*.ts", "vite.config.ts"],
-  "exclude": ["app/worklet", "node_modules"]
+  "include": ["app/**/*.ts", "vite.config.ts", "vitest.config.ts"],
+  "exclude": ["app/worklet", "node_modules", "dist"]
 }
