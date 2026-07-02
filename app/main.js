@@ -4,6 +4,7 @@ import { setupPitchDetector } from './audio/pitchDetector'
 import getLogPitchY from './core/getLogPitchY'
 import { getContext, setContext } from './core/appContext'
 import addPitch from './core/addPitch'
+import scrollLastPitchIntoView from './core/scrollLastPitchIntoView'
 import logoUrl from '../public/pitchmonitor.svg'
 
 document.querySelector('#app').innerHTML = `
@@ -90,5 +91,7 @@ setupPitchDetector().then(pitchDetector => {
     setContext(addPitch(frequency, canvas.width)(getContext()))
 
     paintPitches(getContext())
+
+    scrollLastPitchIntoView(canvasContext.canvas)(getContext())
   })
 })
