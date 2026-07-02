@@ -3,7 +3,7 @@ import noteFrequencyTuples from './constants/noteFrequencyTuples'
 import { setupPitchDetector } from './audio/pitchDetector'
 import getLogPitchY from './core/getLogPitchY'
 import { getContext, setContext } from './core/appContext'
-import updateLastPitch from './core/updateLastPitch'
+import addPitch from './core/addPitch'
 import logoUrl from '../public/pitchmonitor.svg'
 
 document.querySelector('#app').innerHTML = `
@@ -47,20 +47,20 @@ const paintMonitorBoard = appContext => {
   paintNotesLines(appContext)
 }
 
-const paintLastPitch = appContext => {
-  const { lastPitch, pitchSize, pitchLines } = appContext
+const paintPitches = appContext => {
+  const { pitches, pitchSize, pitchLines } = appContext
 
-  if (lastPitch.position.x === pitchLines.offset.x) {
-    paintMonitorBoard(appContext)
-  }
+  paintMonitorBoard(appContext)
 
-  canvasContext.fillStyle = lastPitch.color
-  canvasContext.fillRect(
-    lastPitch.position.x,
-    lastPitch.position.y,
-    pitchSize.width,
-    pitchSize.height,
-  )
+  pitches.forEach((pitch, index) => {
+    canvasContext.fillStyle = pitch.color
+    canvasContext.fillRect(
+      pitchLines.offset.x + index * pitchSize.width,
+      pitch.y,
+      pitchSize.width,
+      pitchSize.height,
+    )
+  })
 }
 
 paintMonitorBoard(getContext())
@@ -69,8 +69,8 @@ setupPitchDetector().then(pitchDetector => {
   pitchDetector.addPitchListener(frequency => {
     document.getElementById('pitch').innerHTML = frequency
 
-    setContext(updateLastPitch(frequency, canvasContext.canvas.width)(getContext()))
+    setContext(addPitch(frequency, canvasContext.canvas.width)(getContext()))
 
-    paintLastPitch(getContext())
+    paintPitches(getContext())
   })
 })

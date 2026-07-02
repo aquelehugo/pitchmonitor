@@ -3,13 +3,7 @@ const DEFAULT_CONTEXT = {
     width: 5,
     height: 2,
   },
-  lastPitch: {
-    color: '',
-    position: {
-      x: 0,
-      y: 0,
-    },
-  },
+  pitches: [],
   pitchLines: {
     offset: {
       x: 70,

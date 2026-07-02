@@ -25,25 +25,24 @@ const COLORS_BY_RATING = {
   bad: 'red',
 }
 
-const updateLastPitch = (frequency, canvasWidth) => appContext => {
-  const { lastPitch, pitchSize, pitchLines } = appContext
-  const newPitchX =
-    lastPitch.position.x < pitchLines.offset.x
-      ? pitchLines.offset.x
-      : lastPitch.position.x + pitchSize.width
-
+const addPitch = (frequency, canvasWidth) => appContext => {
+  const { pitches, pitchSize, pitchLines } = appContext
   const rating = getPitchRating(frequency)
+  const y = getLogPitchY(frequency)(appContext) - pitchSize.height / 2
+
+  const nextPitches = [...pitches, { color: COLORS_BY_RATING[rating], y }]
+
+  const maxVisible = Math.floor(
+    (canvasWidth - pitchLines.offset.x) / pitchSize.width,
+  )
 
   return {
     ...appContext,
-    lastPitch: {
-      position: {
-        x: newPitchX > canvasWidth ? pitchLines.offset.x : newPitchX,
-        y: getLogPitchY(frequency)(appContext) - pitchSize.height / 2,
-      },
-      color: COLORS_BY_RATING[rating],
-    },
+    pitches:
+      nextPitches.length > maxVisible
+        ? nextPitches.slice(nextPitches.length - maxVisible)
+        : nextPitches,
   }
 }
 
-export default updateLastPitch
+export default addPitch
