@@ -6,10 +6,9 @@ const scrollLastPitchIntoView = canvasElement => appContext => {
 
   const lastPitch = pitches.at(-1)
   const rect = canvasElement.getBoundingClientRect()
-  const scaleY = rect.height / canvasElement.height
 
-  const noteTopDocY = rect.top + window.scrollY + lastPitch.y * scaleY
-  const noteBottomDocY = noteTopDocY + pitchSize.height * scaleY
+  const noteTopDocY = rect.top + window.scrollY + lastPitch.y
+  const noteBottomDocY = noteTopDocY + pitchSize.height
 
   const viewportTop = window.scrollY
   const viewportBottom = viewportTop + window.innerHeight

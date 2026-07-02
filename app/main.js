@@ -8,14 +8,15 @@ import scrollLastPitchIntoView from './core/scrollLastPitchIntoView'
 import logoUrl from '../public/pitchmonitor.svg'
 
 document.querySelector('#app').innerHTML = `
-  <div>
+  <div class="header">
     <h1>Pitch Monitor <img src="${logoUrl}" height="48" width="48"></h1>
     <div>last pitch: <span id="pitch">N/A</span></div>
-    <canvas />
   </div>
+  <canvas />
 `
 
 const canvas = document.querySelector('canvas')
+const canvasContext = canvas.getContext('2d')
 
 // Calculate height needed to show all notes
 const firstNoteFrequency = noteFrequencyTuples[0][1]
@@ -27,19 +28,24 @@ const requiredHeight =
   offset.y +
   50 // padding
 
+const dpr = window.devicePixelRatio || 1
+
 const resizeCanvas = () => {
   const rect = canvas.getBoundingClientRect()
-  canvas.width = rect.width
-  canvas.height = requiredHeight
+  canvas.width = Math.round(rect.width * dpr)
+  canvas.height = Math.round(requiredHeight * dpr)
+  canvas.style.height = requiredHeight + 'px'
+  canvasContext.setTransform(dpr, 0, 0, dpr, 0, 0)
+  paintMonitorBoard(getContext())
+  paintPitches(getContext())
 }
-resizeCanvas()
 window.addEventListener('resize', resizeCanvas)
-
-const canvasContext = canvas.getContext('2d')
 
 const paintNotesLines = appContext => {
   canvasContext.fillStyle = 'blue'
   canvasContext.font = '10px'
+
+  const cssWidth = canvas.getBoundingClientRect().width
 
   noteFrequencyTuples.forEach(noteFrequencyTuple => {
     const [note, frequency] = noteFrequencyTuple
@@ -49,20 +55,16 @@ const paintNotesLines = appContext => {
     canvasContext.fillRect(
       appContext.pitchLines.offset.x,
       pitchY,
-      canvas.width,
+      cssWidth,
       1,
     )
   })
 }
 
 const paintMonitorBoard = appContext => {
+  const cssWidth = canvas.getBoundingClientRect().width
   canvasContext.fillStyle = 'white'
-  canvasContext.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height,
-  )
+  canvasContext.fillRect(0, 0, cssWidth, requiredHeight)
   paintNotesLines(appContext)
 }
 
@@ -82,13 +84,13 @@ const paintPitches = appContext => {
   })
 }
 
-paintMonitorBoard(getContext())
+resizeCanvas()
 
 setupPitchDetector().then(pitchDetector => {
   pitchDetector.addPitchListener(frequency => {
     document.getElementById('pitch').innerHTML = frequency
 
-    setContext(addPitch(frequency, canvas.width)(getContext()))
+    setContext(addPitch(frequency, canvas.getBoundingClientRect().width)(getContext()))
 
     paintPitches(getContext())
 
