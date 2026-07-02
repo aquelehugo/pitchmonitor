@@ -1,19 +1,36 @@
 import { Macleod } from 'pitchfinder'
-import noteFrequencyTuples from '../constants/noteFrequencyTuples.js'
+import noteFrequencyTuples from '../constants/noteFrequencyTuples'
+
+type ProbabalisticPitchDetector = (
+  float32AudioBuffer: Float32Array,
+) => { probability: number; freq: number }
 
 const BUFFER_SIZE = 1024
 
+interface ProcessorOptions {
+  processorOptions?: {
+    sampleRate?: number
+    minFrequency?: number
+    maxFrequency?: number
+  }
+}
+
 class PitchDetectorProcessor extends AudioWorkletProcessor {
-  constructor(options) {
+  buffer: Float32Array
+  bufferIndex = 0
+  minFreq: number
+  maxFreq: number
+  detectPitch: ProbabalisticPitchDetector
+
+  constructor(options?: ProcessorOptions) {
     super(options)
     this.buffer = new Float32Array(BUFFER_SIZE)
-    this.bufferIndex = 0
 
-    const sampleRate = options?.processorOptions?.sampleRate || 44100
+    const sampleRate = options?.processorOptions?.sampleRate ?? 44100
     this.minFreq =
-      options?.processorOptions?.minFrequency || noteFrequencyTuples[0][1]
+      options?.processorOptions?.minFrequency ?? noteFrequencyTuples[0][1]
     this.maxFreq =
-      options?.processorOptions?.maxFrequency || noteFrequencyTuples.at(-1)[1]
+      options?.processorOptions?.maxFrequency ?? noteFrequencyTuples.at(-1)![1]
 
     this.detectPitch = Macleod({
       sampleRate,
@@ -21,7 +38,11 @@ class PitchDetectorProcessor extends AudioWorkletProcessor {
     })
   }
 
-  process(inputs, outputs, parameters) {
+  process(
+    inputs: Float32Array[][],
+    _outputs: Float32Array[][],
+    _parameters: Record<string, Float32Array>,
+  ): boolean {
     const input = inputs[0]
 
     if (input.length > 0) {

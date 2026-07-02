@@ -1,4 +1,6 @@
-const noteFrequencyTuples = [
+type NoteFrequencyTuple = [string, number]
+
+const noteFrequencyTuples: NoteFrequencyTuple[] = [
   ['C2', 65.41],
   ['C#2/Db2', 69.3],
   ['D2', 73.42],
