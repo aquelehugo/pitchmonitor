@@ -10,6 +10,7 @@ const baseContext = (): AppContext => ({
     baseDistance: 300,
     highestOnTop: true,
   },
+  balloon: null,
 })
 
 const makeCanvas = (top: number, height: number = 1275): HTMLCanvasElement => {

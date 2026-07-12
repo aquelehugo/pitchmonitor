@@ -5,6 +5,7 @@ import getLogPitchY from './core/getLogPitchY'
 import { getContext, setContext, type AppContext } from './core/appContext'
 import addPitch from './core/addPitch'
 import scrollLastPitchIntoView from './core/scrollLastPitchIntoView'
+import { showBalloon, fadeBalloon, balloonColor } from './core/balloon'
 import logoUrl from '../public/pitchmonitor.svg'
 
 document.querySelector('#app')!.innerHTML = `
@@ -43,7 +44,9 @@ window.addEventListener('resize', resizeCanvas)
 
 const paintNotesLines = (appContext: AppContext) => {
   canvasContext.fillStyle = 'blue'
-  canvasContext.font = '10px'
+  canvasContext.font = 'bold 10px sans-serif'
+  canvasContext.textAlign = 'left'
+  canvasContext.textBaseline = 'alphabetic'
 
   const cssWidth = canvas.getBoundingClientRect().width
 
@@ -82,18 +85,61 @@ const paintPitches = (appContext: AppContext) => {
       pitchSize.height,
     )
   })
+
+  const { balloon } = appContext
+  if (balloon && balloon.opacity > 0) {
+    const text = balloon.cents === null
+      ? balloon.noteName
+      : `${balloon.noteName}${balloon.cents >= 0 ? '+' : ''}${balloon.cents}`
+
+    canvasContext.font = 'bold 12px Inter, sans-serif'
+    const metrics = canvasContext.measureText(text)
+    const padding = 6
+    const balloonWidth = metrics.width + padding * 2
+    const balloonHeight = 18
+    const balloonX = Math.max(appContext.pitchLines.offset.x, balloon.x - balloonWidth)
+    const balloonY = balloon.y - balloonHeight - 8
+
+    canvasContext.globalAlpha = balloon.opacity
+    canvasContext.fillStyle = balloonColor(balloon.cents)
+    canvasContext.beginPath()
+    canvasContext.roundRect(balloonX, balloonY, balloonWidth, balloonHeight, 4)
+    canvasContext.fill()
+
+    canvasContext.fillStyle = 'white'
+    canvasContext.textAlign = 'center'
+    canvasContext.textBaseline = 'middle'
+    canvasContext.fillText(text, balloonX + balloonWidth / 2, balloonY + balloonHeight / 2)
+
+    canvasContext.globalAlpha = 1
+    canvasContext.textAlign = 'left'
+    canvasContext.textBaseline = 'alphabetic'
+  }
 }
 
 resizeCanvas()
+
+let animationFrameId: number | null = null
+
+const tick = () => {
+  setContext(fadeBalloon(performance.now())(getContext()))
+  paintPitches(getContext())
+  animationFrameId = requestAnimationFrame(tick)
+}
 
 setupPitchDetector().then(pitchDetector => {
   pitchDetector.addPitchListener(frequency => {
     document.getElementById('pitch')!.innerHTML = frequency.toString()
 
     setContext(addPitch(frequency, canvas.getBoundingClientRect().width)(getContext()))
+    setContext(showBalloon(frequency, canvas.getBoundingClientRect().width, performance.now())(getContext()))
 
     paintPitches(getContext())
 
     scrollLastPitchIntoView(canvasContext.canvas)(getContext())
+
+    if (!animationFrameId) {
+      animationFrameId = requestAnimationFrame(tick)
+    }
   })
 })

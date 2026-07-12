@@ -11,6 +11,7 @@ describe('appContext', () => {
         baseDistance: 300,
         highestOnTop: true,
       },
+      balloon: null,
     })
   })
 
@@ -34,6 +35,7 @@ describe('appContext', () => {
         baseDistance: 200,
         highestOnTop: false,
       },
+      balloon: null,
     }
     setContext(newCtx)
     expect(getContext()).toEqual(newCtx)

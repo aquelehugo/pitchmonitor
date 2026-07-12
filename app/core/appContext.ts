@@ -1,3 +1,5 @@
+import type { Balloon } from './balloon'
+
 export interface PitchSize {
   width: number
   height: number
@@ -23,6 +25,7 @@ export interface AppContext {
   pitchSize: PitchSize
   pitches: Pitch[]
   pitchLines: PitchLines
+  balloon: Balloon | null
 }
 
 const DEFAULT_CONTEXT: AppContext = {
@@ -39,6 +42,7 @@ const DEFAULT_CONTEXT: AppContext = {
     baseDistance: 300,
     highestOnTop: true,
   },
+  balloon: null,
 }
 
 const context: { value: AppContext } = { value: DEFAULT_CONTEXT }
