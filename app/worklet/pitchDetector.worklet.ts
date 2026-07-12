@@ -31,7 +31,7 @@ class PitchDetectorProcessor extends AudioWorkletProcessor {
   constructor(options?: ProcessorOptions) {
     super(options)
     this.buffer = new Float32Array(BUFFER_SIZE)
-    this.smoothingState = createSmoothingState(5, 0.3)
+    this.smoothingState = createSmoothingState(5, 0.3, 0.5)
 
     const sampleRate = options?.processorOptions?.sampleRate ?? 44100
     this.minFreq =
@@ -74,6 +74,7 @@ class PitchDetectorProcessor extends AudioWorkletProcessor {
           ) {
             const { smoothedFrequency, state } = smoothPitch(
               frequency,
+              currentTime,
               this.smoothingState,
             )
             this.smoothingState = state

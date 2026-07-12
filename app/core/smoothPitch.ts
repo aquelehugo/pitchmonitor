@@ -3,19 +3,21 @@ export interface SmoothingState {
   smoothedLogFreq: number | null
   windowSize: number
   alpha: number
-  jumpThresholdCents: number
+  lastDetectionTime: number | null
+  silenceThresholdSeconds: number
 }
 
 export const createSmoothingState = (
   windowSize = 5,
   alpha = 0.3,
-  jumpThresholdCents = 100,
+  silenceThresholdSeconds = 0.5,
 ): SmoothingState => ({
   recentLogFreqs: [],
   smoothedLogFreq: null,
   windowSize,
   alpha,
-  jumpThresholdCents,
+  lastDetectionTime: null,
+  silenceThresholdSeconds,
 })
 
 const median = (values: number[]): number => {
@@ -34,11 +36,16 @@ export interface SmoothResult {
 
 export const smoothPitch = (
   frequency: number,
+  time: number,
   state: SmoothingState,
 ): SmoothResult => {
   const logFreq = Math.log2(frequency)
 
-  const recentLogFreqs = [...state.recentLogFreqs, logFreq]
+  const wasSilent =
+    state.lastDetectionTime === null ||
+    time - state.lastDetectionTime > state.silenceThresholdSeconds
+
+  const recentLogFreqs = wasSilent ? [logFreq] : [...state.recentLogFreqs, logFreq]
   if (recentLogFreqs.length > state.windowSize) {
     recentLogFreqs.splice(
       0,
@@ -49,22 +56,13 @@ export const smoothPitch = (
   const medianLogFreq = median(recentLogFreqs)
 
   let smoothedLogFreq: number
-  let snappedLogFreqs: number[] | undefined
 
-  if (state.smoothedLogFreq === null) {
+  if (wasSilent || state.smoothedLogFreq === null) {
     smoothedLogFreq = medianLogFreq
   } else {
-    const deltaCents =
-      (medianLogFreq - state.smoothedLogFreq) * 1200
-
-    if (Math.abs(deltaCents) > state.jumpThresholdCents) {
-      smoothedLogFreq = medianLogFreq
-      snappedLogFreqs = new Array(state.windowSize).fill(medianLogFreq)
-    } else {
-      smoothedLogFreq =
-        state.alpha * medianLogFreq +
-        (1 - state.alpha) * state.smoothedLogFreq
-    }
+    smoothedLogFreq =
+      state.alpha * medianLogFreq +
+      (1 - state.alpha) * state.smoothedLogFreq
   }
 
   const smoothedFrequency = Math.pow(2, smoothedLogFreq)
@@ -73,8 +71,9 @@ export const smoothPitch = (
     smoothedFrequency,
     state: {
       ...state,
-      recentLogFreqs: snappedLogFreqs ?? recentLogFreqs,
+      recentLogFreqs,
       smoothedLogFreq,
+      lastDetectionTime: time,
     },
   }
 }
