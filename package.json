@@ -22,7 +22,6 @@
     "vitest": "^4.1.9"
   },
   "dependencies": {
-    "eslint-plugin-prettier": "^4.2.1",
     "pitchfinder": "^2.3.2"
   }
 }
