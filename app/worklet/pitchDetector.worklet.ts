@@ -1,5 +1,10 @@
 import { Macleod } from 'pitchfinder'
 import noteFrequencyTuples from '../constants/noteFrequencyTuples'
+import {
+  createSmoothingState,
+  smoothPitch,
+  type SmoothingState,
+} from '../core/smoothPitch'
 
 type ProbabalisticPitchDetector = (
   float32AudioBuffer: Float32Array,
@@ -21,10 +26,12 @@ class PitchDetectorProcessor extends AudioWorkletProcessor {
   minFreq: number
   maxFreq: number
   detectPitch: ProbabalisticPitchDetector
+  smoothingState: SmoothingState
 
   constructor(options?: ProcessorOptions) {
     super(options)
     this.buffer = new Float32Array(BUFFER_SIZE)
+    this.smoothingState = createSmoothingState(5, 0.3)
 
     const sampleRate = options?.processorOptions?.sampleRate ?? 44100
     this.minFreq =
@@ -65,7 +72,15 @@ class PitchDetectorProcessor extends AudioWorkletProcessor {
             frequency >= this.minFreq &&
             probability >= 0.9
           ) {
-            this.port.postMessage({ type: 'pitch', frequency })
+            const { smoothedFrequency, state } = smoothPitch(
+              frequency,
+              this.smoothingState,
+            )
+            this.smoothingState = state
+            this.port.postMessage({
+              type: 'pitch',
+              frequency: smoothedFrequency,
+            })
           }
           this.bufferIndex = 0
         }

@@ -15,5 +15,9 @@
     "lib": ["ES2022"],
     "rootDir": ".."
   },
-  "include": ["pitchDetector.worklet.ts", "worklet-globals.d.ts"]
+  "include": [
+    "pitchDetector.worklet.ts",
+    "worklet-globals.d.ts",
+    "../core/smoothPitch.ts"
+  ]
 }
