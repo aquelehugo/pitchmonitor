@@ -65,12 +65,13 @@ const paintNotesLines = (appContext: AppContext) => {
 
     const isAccidental = note.includes('#') || note.includes('/b')
     if (isAccidental) {
-      canvasContext.fillStyle = '#e5e5e5'
+      canvasContext.fillStyle = '#ebebff'
       canvasContext.fillRect(offset.x, top, cssWidth - offset.x, height)
     }
 
     canvasContext.fillStyle = 'blue'
     canvasContext.fillText(note, 8, pitchY)
+    canvasContext.fillStyle = '#9999cc'
     canvasContext.fillRect(offset.x, pitchY, cssWidth, 1)
   })
 }
