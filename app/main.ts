@@ -43,24 +43,35 @@ const resizeCanvas = () => {
 window.addEventListener('resize', resizeCanvas)
 
 const paintNotesLines = (appContext: AppContext) => {
-  canvasContext.fillStyle = 'blue'
   canvasContext.font = 'bold 10px sans-serif'
   canvasContext.textAlign = 'left'
   canvasContext.textBaseline = 'alphabetic'
 
   const cssWidth = canvas.getBoundingClientRect().width
+  const { offset } = appContext.pitchLines
 
-  noteFrequencyTuples.forEach(noteFrequencyTuple => {
+  noteFrequencyTuples.forEach((noteFrequencyTuple, index) => {
     const [note, frequency] = noteFrequencyTuple
     const pitchY = getLogPitchY(frequency)(appContext)
 
+    const prevNote = noteFrequencyTuples[index - 1]
+    const nextNote = noteFrequencyTuples[index + 1]
+    const prevY = prevNote ? getLogPitchY(prevNote[1])(appContext) : requiredHeight
+    const nextY = nextNote ? getLogPitchY(nextNote[1])(appContext) : 0
+
+    const top = (pitchY + nextY) / 2
+    const bottom = (pitchY + prevY) / 2
+    const height = bottom - top
+
+    const isAccidental = note.includes('#') || note.includes('/b')
+    if (isAccidental) {
+      canvasContext.fillStyle = '#e5e5e5'
+      canvasContext.fillRect(offset.x, top, cssWidth - offset.x, height)
+    }
+
+    canvasContext.fillStyle = 'blue'
     canvasContext.fillText(note, 8, pitchY)
-    canvasContext.fillRect(
-      appContext.pitchLines.offset.x,
-      pitchY,
-      cssWidth,
-      1,
-    )
+    canvasContext.fillRect(offset.x, pitchY, cssWidth, 1)
   })
 }
 
