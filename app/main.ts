@@ -45,7 +45,7 @@ window.addEventListener('resize', resizeCanvas)
 const paintNotesLines = (appContext: AppContext) => {
   canvasContext.font = 'bold 10px sans-serif'
   canvasContext.textAlign = 'left'
-  canvasContext.textBaseline = 'alphabetic'
+  canvasContext.textBaseline = 'middle'
 
   const cssWidth = canvas.getBoundingClientRect().width
   const { offset } = appContext.pitchLines
@@ -69,8 +69,15 @@ const paintNotesLines = (appContext: AppContext) => {
       canvasContext.fillRect(offset.x, top, cssWidth - offset.x, height)
     }
 
-    canvasContext.fillStyle = 'blue'
-    canvasContext.fillText(note, 8, pitchY)
+    const labelBg = isAccidental ? '#2a2a2a' : '#f0f0f0'
+    const labelFg = isAccidental ? '#ffffff' : '#000000'
+
+    canvasContext.fillStyle = labelBg
+    canvasContext.fillRect(0, top, offset.x, height)
+
+    canvasContext.fillStyle = labelFg
+    canvasContext.fillText(note, 4, pitchY)
+
     canvasContext.fillStyle = '#9999cc'
     canvasContext.fillRect(offset.x, pitchY, cssWidth, 1)
   })
